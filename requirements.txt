@@ -1,0 +1,3 @@
+# Requirements needed when generating releases. See BUILD.rst for details.
+robotframework==4.1.3
+robotframework-seleniumlibrary >= 3.0.0
