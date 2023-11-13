@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from selenium import webdriver
 from time import sleep
 from selenium.webdriver.common.by import By
@@ -7,6 +8,7 @@ import time
 import os
 
 class GetOrderList:
+    @staticmethod
     def get_order_lists(url, usename, us_password, start_time, end_time, path):
         # Open and Login in
         print("代码运行中，请千万不要动鼠标，不要操作浏览器，将持续几分钟，谢谢！")
@@ -42,7 +44,7 @@ class GetOrderList:
             formatted_time = time.strftime("%Y%m%d%H%M%S", time_struct)
             if not os.path.exists(path):
                 os.mkdir(path)
-            file_name = f"{path}\\order_info_{start_time}_{end_time}_{formatted_time}.csv"
+            file_name = f"{path}\\order_info_{usename}_{start_time}_{end_time}_{formatted_time}.csv"
             for i in range(1, 1000 + 1):
                 sleep(15)
                 count = len(driver.find_elements(By.XPATH, "//div[@id='orderList']/div")) + 1
@@ -54,6 +56,9 @@ class GetOrderList:
                     order_status = driver.find_element(By.XPATH,
                                                        f"/html/body/div[4]/div[1]/div[6]/div[{index}]/div[3]/div[2]/div[2]/div[@class='text state layui-hide-xs']").text
                     order_status = str(order_status).split("\n")[1]
+                    order_platform = driver.find_element(By.XPATH,
+                                                             f"/html/body/div[4]/div[1]/div[6]/div[{index}]/div[3]/div[2]/div[1]//div[@class='text']/span[text()='配送类型：']/..").text
+                    order_platform = str(order_platform).split("\n")[1]
                     order_id = driver.find_element(By.XPATH,
                                                    f"/html/body/div[4]/div[1]/div[6]/div[{index}]/div[1]/div[1]").text
                     order_name_element = driver.find_element(By.XPATH,
@@ -64,9 +69,13 @@ class GetOrderList:
                     else:
                         order_phone = driver.find_element(By.XPATH,
                                                           f"/html/body/div[4]/div[1]/div[6]/div[{index}]/div[3]/div[2]/div[1]/div[3]/div[2]/p").text if '无' not in order_name_element else ''
+                    # order_platform = "小蚂蚁平台"
+                    header = ['订单号', '配送员', '配送平台', '配送状态', '配送日期', '配送员电话']
                     with open(file_name, 'a', newline='') as file:
                         writer = csv.writer(file)
-                        writer.writerow([order_time, order_id, order_name_element, order_status, order_phone])
+                        if file.tell() == 0:
+                            writer.writerow(header)
+                        writer.writerow([order_id, order_name_element, order_platform, order_status, order_time, order_phone])
 
                 val = driver.find_element(By.XPATH, "//div[@id='layui-laypage-1']/a[text()='下一页']").get_attribute("class")
                 if val != 'layui-laypage-next':
@@ -77,11 +86,11 @@ class GetOrderList:
             driver.close()
 
 
-url = "http://sf.myps188.com"
-usename = sys.argv[1]
-password = sys.argv[2]
-start_time =  sys.argv[3]
-end_time =  sys.argv[4]
-path = sys.argv[5]
-
-GetOrderList.get_order_lists(url, usename, password, start_time, end_time, path)
+# url = "http://sf.myps188.com"
+# usename = sys.argv[1]
+# password = sys.argv[2]
+# start_time =  sys.argv[3]
+# end_time =  sys.argv[4]
+# path = sys.argv[5]
+#
+# GetOrderList.get_order_lists(url, usename, password, start_time, end_time, path)
